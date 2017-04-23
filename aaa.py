@@ -23,18 +23,21 @@ angle = 1.57
 angles = [angle]
 positions = []
 positions.append([position[0], position[1]])
+lengths = []
+deltaAngels = []
 
 while success:
     success,image = vidcap.read()
     if not success:
         break
-    image = cv2.resize(image, (0,0), fx=.25, fy=.25)
+    image = cv2.resize(image, (0,0), fx=.2, fy=.2)
     #print 'Read a new frame: ', success
     #cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file
     lastImages.append(image)
-    if len(lastImages) > 5:
+    if len(lastImages) > 2:
         lastImages.pop(0)
-        if count % 5 == 0:
+        if count % 1 == 0:
+            print count
             height, width, channels = image.shape
             bestMSE = 100000000
             bestScale = 0
@@ -42,8 +45,8 @@ while success:
             method = cv.CV_TM_SQDIFF_NORMED
 
             c = 0.0
-            for scale in range(1000, 930, -2): # range(1, .69, -.05)
-                scale /= 1000.0;
+            for scale in range(10000, 9940, -2): # range(1, .69, -.05)
+                scale /= 10000.0;
                 scaled_img = cv2.resize(image, (0,0), fx=scale, fy=scale)
                 small_image = scaled_img
                 large_image = lastImages[0].copy()
@@ -68,11 +71,14 @@ while success:
                     bestMSE = error
                     bestScale = scale
 
-            angle -= (bestPosX - .5)  * 7.658536585 # just some factor
+            if (bestPosX - .5) > .005:
+                angle -= (bestPosX - .5) * 2 # just some factor
             position[0] += math.cos(angle) * (1 - bestScale)
             position[1] += math.sin(angle) * (1 - bestScale)
             positions.append([position[0], position[1]])
             angles.append(angle)
+            lengths.append(1 - bestScale)
+            deltaAngels.append(bestPosX - .5)
 
                 
     count += 1
@@ -81,7 +87,8 @@ for p in positions:
     print p
 
 print angles
-
+print lengths
+print deltaAngels
 
 
 
