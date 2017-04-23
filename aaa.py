@@ -30,11 +30,11 @@ while success:
     success,image = vidcap.read()
     if not success:
         break
-    image = cv2.resize(image, (0,0), fx=.2, fy=.2)
+    image = cv2.resize(image, (0,0), fx=.5, fy=.5)
     #print 'Read a new frame: ', success
-    #cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file
-    lastImages.append(image)
-    if len(lastImages) > 2:
+    cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file
+    #lastImages.append(image)
+    if len(lastImages) > 2 and False:
         lastImages.pop(0)
         if count % 1 == 0:
             print count

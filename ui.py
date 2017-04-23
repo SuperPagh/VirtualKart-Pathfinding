@@ -22,6 +22,9 @@ class MyFirstGUI:
         toIgnore = Scale(master, label="Level to ignore", from_=0.0000, to=0.005, resolution = 0.00001, digits = 3, orient=HORIZONTAL, command=self.toIgnore, length=500)
         toIgnore.pack()
 
+        lowPassCount = Scale(master, label="Number of low pass rounds", from_=0, to=10, resolution = 1, orient=HORIZONTAL, command=self.lowPassCount, length=500)
+        lowPassCount.pack()
+
         self.c = Canvas(master, width=500, height=500)
         self.c.pack()
 
@@ -33,9 +36,25 @@ class MyFirstGUI:
         self.ss = float(a)
         self.paint()
 
+    def lowPassCount(self, a):
+        self.lpc = int(a)
+        self.paint()
+
     def toIgnore(self, a):
         self.ii = float(a)
         self.paint()
+
+    def lowPass(self, a):
+        last = 0
+        lastlast = 0
+        aa = []
+        for z in range(len(a)):
+            az = 2 * last - lastlast + 1/32.0 * (a[z] - 2 * a[z - 4] + a[z - 8])
+            #az = last - a[z] / 32 + a[z - 16] - a[z - 17] + a[z - 32] / 32
+            lastlast = last
+            last = az
+            aa.append(az)
+        return aa
 
     def paint(self):
         self.c.delete("all")
@@ -49,9 +68,12 @@ class MyFirstGUI:
         minY = 10000
         maxX = -10000
         maxY = -10000
+        for z in range(self.lpc):
+            a = self.lowPass(a)
         for z in range(len(l)):
-            if abs(a[z]) > self.ii:
-                angle -= a[z] * self.ss
+            az = a[z]
+            if abs(az) > self.ii:
+                angle -= az * self.ss
             x = math.cos(angle) * l[z] + x
             y = math.sin(angle) * l[z] + y
             points.append([x, y])
